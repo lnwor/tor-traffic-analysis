@@ -26,7 +26,7 @@ def yaml_dict_presenter(dumper, data):
         node_key = dumper.represent_data(item_key)
         node_value = dumper.represent_data(item_value)
         value.append((node_key, node_value))
-    return yaml.nodes.MappingNode(u"tag:yaml.org,2002:map", value)
+    return yaml.MappingNode(u"tag:yaml.org,2002:map", value)
 
 
 def generate_shadow():
@@ -141,7 +141,6 @@ def generate_shadow():
                     fout.write(
                         '      <data key="d5">fileserver' + str(pair) + ":80</data>\n"
                     )
-                    # fout.write('      <data key="d5">fileserver'+ str(i%10) +':80</data>\n') # solo a scopo di testing
                 # elif "start_time" in line:
                 #     fout.write('      <data key="d0">'+str(random.randint(1,30))+'</data>\n')
                 else:

@@ -5,16 +5,14 @@ import sys
 from statistics import stdev
 
 max_value = 30
-min_value = (
-    -0.1
-)  # negativo perchè la versione di shadow in utilizzo in rari casi produce pcaps con timestamps anticipati
-avg_diff = 0
+min_value = 0.05
+avg_diff = 0.1
 
 # recupero i timestamp di tutti i client
 def fetch_clients():
     c_tstamps = {}
     for p in Path("./pcaps").glob("*.log"):
-        if "fileserver" in p.name:
+        if "torclient" not in p.name:
             continue
         file = open("./pcaps/" + p.name, "r")
         lines = file.readlines()
@@ -32,7 +30,7 @@ def fetch_clients():
 def fetch_servers():
     s_tstamps = {}
     for p in Path("./pcaps").glob("*.log"):
-        if "torclient" in p.name:
+        if "fileserver" not in p.name:
             continue
         file = open("./pcaps/" + p.name, "r")
         lines = file.readlines()
@@ -53,12 +51,8 @@ def closest(nlist, n):
         return nlist[0]
     if pos == len(nlist):
         return nlist[-1]
-    before = nlist[pos - 1]
     after = nlist[pos]
-    if n - before <= after - n and before >= (n - avg_diff + min_value):
-        return before
-    else:
-        return after
+    return after
 
 
 # calcolo lo scarto quadratico medio (deviazione standard) sulle differenze tra i timestamp di server e client
@@ -115,9 +109,9 @@ def main():
     linespairs = pairs.readlines()
     count = 0
     for line in linesout:
-        client, server = line.split("|")
+        client, server = line.rstrip().split("|")
         for linepair in linespairs:
-            client_pair, server_pair = linepair.split("|")
+            client_pair, server_pair = linepair.rstrip().split("|")
             if client_pair == client[client.find("t", 1) + 1 : client.find("-")]:
                 if (
                     int(client[client.find("t", 1) + 1 : client.find("-")]),
@@ -125,6 +119,15 @@ def main():
                 ) == (int(client_pair), int(server_pair)):
                     count += 1
                     break
+                else:
+                    print(
+                        "The client "
+                        + client
+                        + " was matched with "
+                        + server
+                        + "instead of fileserver"
+                        + server_pair
+                    )
     if count >= len(clients) * 0.8:
         print(
             "\033[32m"
@@ -132,7 +135,8 @@ def main():
             + " out of "
             + str(len(clients))
             + " clients matched correctly"
-            + "\033[m"
+            + "\033[m",
+            file=sys.stderr,
         )
     elif count >= len(clients) * 0.5:
         print(
@@ -141,7 +145,8 @@ def main():
             + " out of "
             + str(len(clients))
             + " clients matched correctly"
-            + "\033[m"
+            + "\033[m",
+            file=sys.stderr,
         )
     else:
         print(
@@ -150,7 +155,8 @@ def main():
             + " out of "
             + str(len(clients))
             + " clients matched correctly"
-            + "\033[m"
+            + "\033[m",
+            file=sys.stderr,
         )
     pairs.close()
     fout.close()

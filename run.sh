@@ -14,5 +14,6 @@ done
 shadow --template-directory shadow.data.template shadow.yaml > shadow.log
 
 ./convert.sh
+./analyze.py >> analysis.log
 
 notify-send finito
