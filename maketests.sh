@@ -1,4 +1,6 @@
 #!/bin/bash
-for ((i=1; i<10; i++)); do
-    ./run.sh 100 10
+for((j=1; j<9; j++));do
+    ./run.sh 100 10 $(( j * 100 ))
 done
+
+notify-send finito

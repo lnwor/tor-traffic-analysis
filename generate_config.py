@@ -30,18 +30,6 @@ def yaml_dict_presenter(dumper, data):
 
 
 def generate_shadow():
-    shadow = {}
-    inline = 'graph [\n  directed 0\n  node [\n    id 0\n    ip_address "0.0.0.0"\n    country_code "US"\n    bandwidth_down "1 Gbit"\n    bandwidth_up "1 Gbit"\n  ]\n  edge [\n    source 0\n    target 0\n    latency "50 ms"\n    jitter "0 ms"\n    packet_loss 0.0\n  ]\n]\n'
-    shadow["general"] = {"stop_time": "30 min", "seed": 1835250621, "parallelism": 2}
-    shadow["network"] = {}
-    # shadow["network"]["use_shortest_path"] = False
-    shadow["network"]["graph"] = {}
-    shadow["network"]["graph"]["type"] = "gml"
-    shadow["network"]["graph"]["inline"] = inline
-    shadow["host_defaults"] = {}
-    shadow["host_defaults"]["pcap_directory"] = "./pcaps"
-    shadow["hosts"] = {}
-
     parser = argparse.ArgumentParser(description="Generate config file.")
     parser.add_argument(
         "clients", metavar="<clients>", type=int, nargs=1, help="Number of clients"
@@ -49,8 +37,27 @@ def generate_shadow():
     parser.add_argument(
         "servers", metavar="<servers>", type=int, nargs=1, help="Number of servers"
     )
+    parser.add_argument(
+        "latency", metavar="<latency>", type=int, nargs=1, help="Latency value"
+    )
 
     args = parser.parse_args()
+
+    shadow = {}
+    inline = (
+        'graph [\n  directed 0\n  node [\n    id 0\n    ip_address "0.0.0.0"\n    country_code "US"\n    bandwidth_down "1 Gbit"\n    bandwidth_up "1 Gbit"\n  ]\n  edge [\n    source 0\n    target 0\n    latency "'
+        + str(args.latency[0])
+        + ' ms"\n    jitter "0 ms"\n    packet_loss 0.0\n  ]\n]\n'
+    )
+    shadow["general"] = {"stop_time": "30 min", "seed": 1835250621, "parallelism": 2}
+    shadow["network"] = {}
+    # shadow["network"]["use_shortest_path"] = False
+    shadow["network"]["graph"] = {}
+    shadow["network"]["graph"]["type"] = "gml"
+    shadow["network"]["graph"]["inline"] = inline
+    shadow["host_defaults"] = {}
+    shadow["host_defaults"]["pcap_directory"] = "/run/media/Documents/pcaps"
+    shadow["hosts"] = {}
 
     for i in range(args.servers[0]):
         shadow["hosts"]["fileserver" + str(i)] = {}
@@ -86,6 +93,14 @@ def generate_shadow():
             "start_time": 60,
         }
     ]
+    shadow["hosts"]["exit3"] = {}
+    shadow["hosts"]["exit3"]["processes"] = [
+        {
+            "path": "~/.local/bin/tor",
+            "args": "--Address exit3 --Nickname exit3 --defaults-torrc torrc-defaults -f torrc",
+            "start_time": 60,
+        }
+    ]
     shadow["hosts"]["relay1"] = {}
     shadow["hosts"]["relay1"]["processes"] = [
         {
@@ -99,6 +114,14 @@ def generate_shadow():
         {
             "path": "~/.local/bin/tor",
             "args": "--Address relay2 --Nickname relay2 --defaults-torrc torrc-defaults -f torrc",
+            "start_time": 60,
+        }
+    ]
+    shadow["hosts"]["relay3"] = {}
+    shadow["hosts"]["relay3"]["processes"] = [
+        {
+            "path": "~/.local/bin/tor",
+            "args": "--Address relay3 --Nickname relay3 --defaults-torrc torrc-defaults -f torrc",
             "start_time": 60,
         }
     ]
@@ -119,7 +142,7 @@ def generate_shadow():
             + str(i)
             + " --defaults-torrc torrc-defaults -f torrc"
         )
-        shadow["hosts"]["torclient" + str(i)]["processes"][0]["start_time"] = 900
+        shadow["hosts"]["torclient" + str(i)]["processes"][0]["start_time"] = 850
         shadow["hosts"]["torclient" + str(i)]["processes"][1] = {}
         shadow["hosts"]["torclient" + str(i)]["processes"][1][
             "path"
@@ -127,7 +150,7 @@ def generate_shadow():
         shadow["hosts"]["torclient" + str(i)]["processes"][1]["args"] = (
             "../../../conf/tgen.torclient" + str(i) + ".graphml.xml"
         )
-        shadow["hosts"]["torclient" + str(i)]["processes"][1]["start_time"] = 1200
+        shadow["hosts"]["torclient" + str(i)]["processes"][1]["start_time"] = 900
 
         pair = random.randint(0, args.servers[0] - 1)
 
@@ -142,7 +165,11 @@ def generate_shadow():
                         '      <data key="d5">fileserver' + str(pair) + ":80</data>\n"
                     )
                 # elif "start_time" in line:
-                #     fout.write('      <data key="d0">'+str(random.randint(1,30))+'</data>\n')
+                #     fout.write(
+                #         '      <data key="d0">'
+                #         + str(random.randint(1, 30))
+                #         + "</data>\n"
+                #     )
                 else:
                     fout.write(line)
             fout.close()

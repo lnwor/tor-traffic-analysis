@@ -4,17 +4,16 @@ from bisect import bisect_left
 import sys
 from statistics import stdev
 
-max_value = 30
+max_value = 20
 min_value = 0.05
-avg_diff = 0.1
 
 # recupero i timestamp di tutti i client
 def fetch_clients():
     c_tstamps = {}
-    for p in Path("./pcaps").glob("*.log"):
+    for p in Path("/run/media/Documents/pcaps").glob("*.log"):
         if "torclient" not in p.name:
             continue
-        file = open("./pcaps/" + p.name, "r")
+        file = open("/run/media/Documents/pcaps/" + p.name, "r")
         lines = file.readlines()
         timestamps = []
         for line in lines:
@@ -29,10 +28,10 @@ def fetch_clients():
 # recupero i timestamp di tutti i server
 def fetch_servers():
     s_tstamps = {}
-    for p in Path("./pcaps").glob("*.log"):
+    for p in Path("/run/media/Documents/pcaps").glob("*.log"):
         if "fileserver" not in p.name:
             continue
-        file = open("./pcaps/" + p.name, "r")
+        file = open("/run/media/Documents/pcaps/" + p.name, "r")
         lines = file.readlines()
         timestamps = []
         for line in lines:
@@ -59,7 +58,7 @@ def closest(nlist, n):
 def calc_dev(client, server):
     tlist = []
     for t in client:
-        tlist.append(abs(t + avg_diff - closest(server, t + avg_diff)))
+        tlist.append(abs(t - closest(server, t)))
     return stdev(tlist)
 
 
@@ -86,22 +85,37 @@ def main():
     for client in clients:
         candidates[client] = {}
         val_list = []
-        for server in servers:
-            if is_candidate(clients[client], servers[server]):
-                candidates[client][server] = calc_dev(clients[client], servers[server])
-                val_list = list(candidates[client].values())
-        print("For the client " + client)
-        for v in candidates[client].keys():
-            print(v, candidates[client][v])
-        if len(val_list) == 0:
-            print("Il client " + client + " non ha candidati")
-        else:
+        if len(clients[client]) == 1:
+            for server in servers:
+                if is_candidate(clients[client], servers[server]):
+                    candidates[client][server] = abs(
+                        clients[client][0]
+                        - closest(servers[server], clients[client][0] + 0.3)
+                    )
+            val_list = list(candidates[client].values())
             pos = val_list.index(min(val_list))
             servername = list(candidates[client].keys())[pos]
-
-        if servername != False:
             fout.write(client + "|" + servername + "\n")
             print(client + " si è connesso con " + servername)
+        else:
+            for server in servers:
+                if is_candidate(clients[client], servers[server]):
+                    candidates[client][server] = calc_dev(
+                        clients[client], servers[server]
+                    )
+                    val_list = list(candidates[client].values())
+            print("Il client " + client + " ha i seguenti candidati:")
+            for v in candidates[client].keys():
+                print("La devstd per " + v + " è: " + str(candidates[client][v]))
+            if len(val_list) == 0:
+                print("Il client " + client + " non ha candidati")
+            else:
+                pos = val_list.index(min(val_list))
+                servername = list(candidates[client].keys())[pos]
+
+            if servername != False:
+                fout.write(client + "|" + servername + "\n")
+                print(client + " si è connesso con " + servername)
     fout.close()
     pairs = open("./pairs.log")
     fout = open("./matches.log")
@@ -121,11 +135,11 @@ def main():
                     break
                 else:
                     print(
-                        "The client "
+                        "Il client "
                         + client
-                        + " was matched with "
+                        + " è stato abbinato con il server "
                         + server
-                        + "instead of fileserver"
+                        + " invece che con fileserver"
                         + server_pair
                     )
     if count >= len(clients) * 0.8:

@@ -2,7 +2,7 @@
 chmod 700 shadow.data.template/hosts/hiddenserver/hs
 # Run the Tor minimal test and store output in shadow.log
 rm -rf shadow.data
-rm -rf /home/lorenzo/Documents/tesi/testshadow/pcaps/*
+rm -rf ./pcaps/*
 rm -f ./pairs.log
 
 python3 ./newgenerate_config.py $1 $2

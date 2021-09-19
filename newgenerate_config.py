@@ -31,7 +31,7 @@ def yaml_dict_presenter(dumper, data):
 
 def generate_shadow():
     shadow = {}
-    inline = 'graph [\n  directed 0\n  node [\n    id 0\n    ip_address "0.0.0.0"\n    country_code "US"\n    host_bandwidth_down "1 Gbit"\n    host_bandwidth_up "1 Gbit"\n  ]\n  edge [\n    source 0\n    target 0\n    latency "50 ms"\n    jitter "0 ms"\n    packet_loss 0.0\n  ]\n]\n'
+    inline = 'graph [\n  directed 0\n  node [\n    id 0\n    ip_address "0.0.0.0"\n    country_code "US"\n    host_bandwidth_down "1 Gbit"\n    host_bandwidth_up "1 Gbit"\n  ]\n  edge [\n    source 0\n    target 0\n    latency "100 ms"\n    jitter "0 ms"\n    packet_loss 0.0\n  ]\n]\n'
     shadow["general"] = {"stop_time": "30 min", "parallelism": 2}
     shadow["network"] = {}
     # shadow["network"]["use_shortest_path"] = False
