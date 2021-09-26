@@ -37,17 +37,12 @@ def generate_shadow():
     parser.add_argument(
         "servers", metavar="<servers>", type=int, nargs=1, help="Number of servers"
     )
-    parser.add_argument(
-        "latency", metavar="<latency>", type=int, nargs=1, help="Latency value"
-    )
 
     args = parser.parse_args()
 
     shadow = {}
     inline = (
-        'graph [\n  directed 0\n  node [\n    id 0\n    ip_address "0.0.0.0"\n    country_code "US"\n    bandwidth_down "1 Gbit"\n    bandwidth_up "1 Gbit"\n  ]\n  edge [\n    source 0\n    target 0\n    latency "'
-        + str(args.latency[0])
-        + ' ms"\n    jitter "0 ms"\n    packet_loss 0.0\n  ]\n]\n'
+        'graph [\n  directed 0\n  node [\n    id 0\n    ip_address "0.0.0.0"\n    country_code "US"\n    bandwidth_down "1 Gbit"\n    bandwidth_up "1 Gbit"\n  ]\n  edge [\n    source 0\n    target 0\n    latency "100 ms"\n    jitter "0 ms"\n    packet_loss 0.0\n  ]\n]\n'
     )
     shadow["general"] = {"stop_time": "30 min", "seed": 1835250621, "parallelism": 2}
     shadow["network"] = {}

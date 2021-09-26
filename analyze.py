@@ -10,10 +10,10 @@ min_value = 0.1
 # recupero i timestamp di tutti i client
 def fetch_clients():
     c_tstamps = {}
-    for p in Path("/run/media/Documents/pcaps").glob("*.log"):
+    for p in Path("./pcaps").glob("*.log"):
         if "torclient" not in p.name:
             continue
-        file = open("/run/media/Documents/pcaps/" + p.name, "r")
+        file = open("./pcaps/" + p.name, "r")
         lines = file.readlines()
         timestamps = []
         for line in lines:
@@ -28,10 +28,10 @@ def fetch_clients():
 # recupero i timestamp di tutti i server
 def fetch_servers():
     s_tstamps = {}
-    for p in Path("/run/media/Documents/pcaps").glob("*.log"):
+    for p in Path("./pcaps").glob("*.log"):
         if "fileserver" not in p.name:
             continue
-        file = open("/run/media/Documents/pcaps/" + p.name, "r")
+        file = open("./pcaps/" + p.name, "r")
         lines = file.readlines()
         timestamps = []
         for line in lines:
@@ -145,9 +145,9 @@ def main():
         print(
             "\033[32m"
             + str(count)
-            + " out of "
+            + " dei "
             + str(len(clients))
-            + " clients matched correctly"
+            + " client sono stati abbinari correttamente"
             + "\033[m",
             file=sys.stderr,
         )
@@ -155,9 +155,9 @@ def main():
         print(
             "\033[33m"
             + str(count)
-            + " out of "
+            + " dei "
             + str(len(clients))
-            + " clients matched correctly"
+            + " client sono stati abbinari correttamente"
             + "\033[m",
             file=sys.stderr,
         )
@@ -165,9 +165,9 @@ def main():
         print(
             "\033[31m"
             + str(count)
-            + " out of "
+            + " dei "
             + str(len(clients))
-            + " clients matched correctly"
+            + " client sono stati abbinari correttamente"
             + "\033[m",
             file=sys.stderr,
         )

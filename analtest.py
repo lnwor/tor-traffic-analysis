@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+
+'''
+Questo script è utilizzato solo in fase di testing
+'''
 from pathlib import Path
 from bisect import bisect_left
 import sys, argparse
@@ -7,10 +11,10 @@ from statistics import stdev
 
 def fetch_clients():
     c_tstamps = {}
-    for p in Path("/run/media/Documents/pcaps").glob("*.log"):
+    for p in Path("./pcaps").glob("*.log"):
         if "torclient" not in p.name:
             continue
-        file = open("/run/media/Documents/pcaps/" + p.name, "r")
+        file = open("./pcaps/" + p.name, "r")
         lines = file.readlines()
         timestamps = []
         for line in lines:
@@ -25,10 +29,10 @@ def fetch_clients():
 # recupero i timestamp di tutti i server
 def fetch_servers():
     s_tstamps = {}
-    for p in Path("/run/media/Documents/pcaps").glob("*.log"):
+    for p in Path("./pcaps").glob("*.log"):
         if "fileserver" not in p.name:
             continue
-        file = open("/run/media/Documents/pcaps/" + p.name, "r")
+        file = open("./pcaps/" + p.name, "r")
         lines = file.readlines()
         timestamps = []
         for line in lines:
@@ -75,7 +79,6 @@ def main():
     clients = fetch_clients()
     servers = fetch_servers()
     candidates = {}
-    diffs = []  # usarlo per ottenere una media ed aggiornare lo script alla nuova media
     servername = ""
     fout = open("./matches.log", "w")
 
