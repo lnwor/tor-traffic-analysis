@@ -5,7 +5,7 @@ import sys
 from statistics import stdev
 
 max_value = 20
-min_value = 0.05
+min_value = 0.1
 
 # recupero i timestamp di tutti i client
 def fetch_clients():
@@ -78,7 +78,6 @@ def main():
     clients = fetch_clients()
     servers = fetch_servers()
     candidates = {}
-    diffs = []  # usarlo per ottenere una media ed aggiornare lo script alla nuova media
     servername = ""
     fout = open("./matches.log", "w")
 
